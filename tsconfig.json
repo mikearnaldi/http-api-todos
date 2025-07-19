@@ -10,17 +10,31 @@
     "esModuleInterop": true,
     "allowSyntheticDefaultImports": true,
     "forceConsistentCasingInFileNames": true,
-    "types": ["@types/bun"],
+    "types": [
+      "@types/bun"
+    ],
     "plugins": [
       {
         "name": "@effect/language-service"
       }
-    ]
+    ],
+    "baseUrl": ".",
+    "paths": {
+      "http-api-todos/*": [
+        "./src/*"
+      ]
+    },
+    "incremental": true,
+    "tsBuildInfoFile": ".tsbuildinfo"
   },
   "include": [
-    "src/**/*"
+    "src/**/*",
+    "test/**/*",
+    "vitest.config.ts",
+    "setupTests.ts"
   ],
   "exclude": [
-    "node_modules"
+    "node_modules",
+    "dist"
   ]
 }

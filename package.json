@@ -9,9 +9,11 @@
     "dev": "bun --watch src/index.ts",
     "build": "bun build src/index.ts --outdir ./dist --target bun",
     "typecheck": "tsc --noEmit",
-    "lint": "eslint src/",
-    "lint:fix": "eslint src/ --fix",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "lint": "eslint . --ext .ts,.js,.mjs",
+    "lint:fix": "eslint . --ext .ts,.js,.mjs --fix",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "clean": "rm -f .tsbuildinfo"
   },
   "keywords": [],
   "author": "",
@@ -19,6 +21,7 @@
   "devDependencies": {
     "@effect/eslint-plugin": "^0.3.2",
     "@effect/language-service": "^0.27.2",
+    "@effect/vitest": "^0.24.1",
     "@eslint/js": "^9.31.0",
     "@types/bun": "^1.2.18",
     "eslint": "^9.31.0",
@@ -27,6 +30,11 @@
     "eslint-plugin-simple-import-sort": "^12.1.1",
     "eslint-plugin-sort-destructure-keys": "^2.0.0",
     "typescript": "^5.8.3",
-    "typescript-eslint": "^8.37.0"
+    "typescript-eslint": "^8.37.0",
+    "vitest": "^3.2.4"
+  },
+  "dependencies": {
+    "@effect/platform-bun": "^0.74.0",
+    "effect": "^3.16.16"
   }
 }

@@ -20,3 +20,4 @@ Each feature has its own directory containing:
 ## Features
 
 - [x] **[http-api-integration](./http-api-integration/)** - Basic HTTP API with health endpoint using Effect platform
+- [x] **[github-actions-ci](./github-actions-ci/)** - Continuous Integration pipeline with lint, typecheck, and test automation

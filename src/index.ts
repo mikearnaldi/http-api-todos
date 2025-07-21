@@ -1,13 +1,8 @@
 import { BunRuntime } from "@effect/platform-bun"
-import { Console, Effect } from "effect"
+import { Layer } from "effect"
 
-export const greet = (name: string) => Console.log(`Hello, ${name}!`)
-
-export const program = Effect.gen(function*() {
-  yield* Console.log("Hello from Effect + Bun + TypeScript!")
-  yield* greet("World")
-})
+import { serverLive } from "./http/server.ts"
 
 if (import.meta.main) {
-  BunRuntime.runMain(program)
+  Layer.launch(serverLive).pipe(BunRuntime.runMain)
 }

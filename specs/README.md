@@ -19,4 +19,4 @@ Each feature has its own directory containing:
 
 ## Features
 
-<!-- Add links to feature specifications as they are created -->
+- [x] **[http-api-integration](./http-api-integration/)** - Basic HTTP API with health endpoint using Effect platform

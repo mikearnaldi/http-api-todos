@@ -11,9 +11,11 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - `pnpm remove <package>` - Remove dependency
 
 ### Build and Run
-- `pnpm dev` - Start development server with hot reload
+- `pnpm dev` - Start development server with hot reload ⚠️ **DO NOT USE** - Never run dev mode during development
 - `pnpm start` - Run the application in production mode
 - `pnpm build` - Build the project for production (outputs to ./dist)
+
+**IMPORTANT**: Never run `pnpm dev` during development work. The development server should only be started by the user manually when they want to test the application. Use tests instead of running the dev server.
 
 ### Code Quality
 - `pnpm typecheck` - Run TypeScript type checking without emitting files
@@ -91,6 +93,15 @@ This project follows a **spec-driven development** approach where every feature 
 
 ### Specification Structure
 
+#### Feature Directory Listing
+**File**: `specs/README.md`
+- **Purpose**: Simple directory listing of all features with completion status
+- **Content**: Checkbox list with feature links and brief descriptions
+- **Format**: `- [x] **[feature-name](./feature-name/)** - Brief feature description`
+- **Keep Simple**: No detailed documentation, just directory navigation
+- **Update**: Add new features as single line entries when created
+
+#### Individual Feature Documentation
 For each feature, create a folder `specs/[feature-name]/` containing:
 
 #### 1. `instructions.md`
@@ -316,7 +327,45 @@ The `createMockConsole` utility is available at `test/utils/mockConsole.ts` and 
 - **Simplest Solution**: Choose the simplest approach that meets requirements
 - **Clarity Over Cleverness**: Prioritize readable, maintainable code
 
+## Implementation Patterns
+
+The project includes comprehensive pattern documentation for future reference and consistency:
+
+### Pattern Directory
+**Location**: `patterns/`
+- **Purpose**: Detailed documentation of all implementation patterns used in the project
+- **Usage**: Reference material for maintaining consistency and best practices
+- **Content**: Code examples, principles, and guidelines from actual implementation
+
+### Available Patterns
+- **[patterns/http-api.md](./patterns/http-api.md)**: HTTP API definition and implementation patterns
+  - Declarative API structure (endpoints → groups → APIs)
+  - Handler implementation with Effect composition
+  - Server configuration and platform abstraction
+  
+- **[patterns/layer-composition.md](./patterns/layer-composition.md)**: Layer-based dependency injection patterns
+  - Service provision strategies (`Layer.provide()` vs `Layer.provideMerge()`)
+  - Environment-specific configurations
+  - Factory patterns for test services
+
+- **[patterns/generic-testing.md](./patterns/generic-testing.md)**: General testing patterns with @effect/vitest
+  - Service mocking with complete interface implementation
+  - Effect-based test structure and assertions
+  - Test data management and state capture
+
+- **[patterns/http-specific-testing.md](./patterns/http-specific-testing.md)**: HTTP API testing patterns
+  - Layer-based HTTP testing with real servers
+  - Dynamic port assignment and URL extraction
+  - HTTP client integration testing
+
+### Pattern Usage Guidelines
+- **Reference First**: Check patterns directory before implementing new features
+- **Consistency**: Follow established patterns for similar functionality
+- **Documentation**: Update patterns when introducing new implementation approaches
+- **Examples**: All patterns include actual code examples from the implementation
+
 ## Notes
 - Vitest with @effect/vitest configured for Effect-aware testing
 - Project set up for HTTP API todos functionality with SQLite persistence
 - Effect TypeScript ecosystem integration for type-safe, composable architecture
+- Comprehensive implementation patterns documented for consistency and reusability

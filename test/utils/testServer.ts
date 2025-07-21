@@ -3,8 +3,8 @@ import { NodeHttpServer } from "@effect/platform-node"
 import { Layer } from "effect"
 import { createServer } from "node:http"
 
-import { todosApi } from "../../src/http/api.ts"
-import { healthLive } from "../../src/http/handlers/health.ts"
+import { todosApi } from "http-api-todos/http/api.ts"
+import { healthLive } from "http-api-todos/http/handlers/health.ts"
 
 const apiLive = HttpApiBuilder.api(todosApi).pipe(
   Layer.provide(healthLive)

@@ -5,8 +5,8 @@ import { createMockConsole } from "./mockConsole.ts"
 import { testServerLive } from "./testServer.ts"
 
 export const createTestHttpServer = () => {
-  const { mockConsole, messages } = createMockConsole()
-  
+  const { messages, mockConsole } = createMockConsole()
+
   const testServerWithMockConsole = testServerLive.pipe(
     Layer.provide(Logger.add(Logger.defaultLogger)),
     Layer.provide(Console.setConsole(mockConsole)),
@@ -14,9 +14,7 @@ export const createTestHttpServer = () => {
   )
 
   const getServerUrl = () => {
-    const addressMessage = messages.find(msg => 
-      msg.includes("Listening on") && msg.includes("http://")
-    )
+    const addressMessage = messages.find((msg) => msg.includes("Listening on") && msg.includes("http://"))
     if (!addressMessage) {
       throw new Error("Server address not found in logs")
     }
@@ -25,7 +23,7 @@ export const createTestHttpServer = () => {
     if (!urlMatch) {
       throw new Error("Could not extract URL from log message")
     }
-    
+
     return urlMatch[0]
   }
 

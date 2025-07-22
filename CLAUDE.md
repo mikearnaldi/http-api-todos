@@ -74,22 +74,37 @@ This is non-negotiable and applies to every single file modification.
 
 This project follows a **spec-driven development** approach where every feature is thoroughly specified before implementation.
 
-### Workflow Steps
+**CRITICAL RULE: NEVER IMPLEMENT WITHOUT FOLLOWING THE COMPLETE SPEC FLOW**
 
-1. **Specification Phase**
-   - Create feature folder in `specs/[feature-name]/`
-   - Document initial requirements and design
-   - Review and refine before implementation
+### Mandatory Workflow Steps
 
-2. **Implementation Phase**  
-   - Follow the detailed design from specs
-   - Implement according to the plan
-   - Track progress in plan.md
+**AUTHORIZATION PROTOCOL**: Before proceeding to any phase (2-5), you MUST:
+1. Present the completed work from the current phase
+2. Explicitly ask for user authorization to proceed  
+3. Wait for clear user approval before continuing
+4. NEVER assume permission or proceed automatically
 
-3. **Validation Phase**
-   - Ensure implementation matches specification
-   - Run tests and quality checks
-   - Update documentation as needed
+### Phase-by-Phase Process
+
+**Phase 1**: Create `instructions.md` (initial requirements capture)
+- Create feature folder and capture user requirements
+- Document user stories, acceptance criteria, constraints
+
+**Phase 2**: Derive `requirements.md` from instructions - **REQUIRES USER APPROVAL**
+- Structured analysis of functional/non-functional requirements
+- STOP and ask for authorization before proceeding to Phase 3
+
+**Phase 3**: Create `design.md` from requirements - **REQUIRES USER APPROVAL** 
+- Technical design and implementation strategy
+- STOP and ask for authorization before proceeding to Phase 4
+
+**Phase 4**: Generate `plan.md` from design - **REQUIRES USER APPROVAL**
+- Implementation roadmap and task breakdown  
+- STOP and ask for authorization before proceeding to Phase 5
+
+**Phase 5**: Execute implementation - **REQUIRES USER APPROVAL**
+- Follow the plan exactly as specified
+- NEVER start implementation without explicit user approval
 
 ### Specification Structure
 

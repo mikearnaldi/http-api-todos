@@ -1,6 +1,20 @@
 # New Feature Development Flow
 
-You are starting a new feature development flow following the spec-driven development approach outlined in CLAUDE.md.
+🚨 **MANDATORY SPEC-DRIVEN DEVELOPMENT** 🚨
+
+You are starting a new feature development flow that **MUST** follow the spec-driven development approach outlined in CLAUDE.md. 
+
+**CRITICAL**: This command ONLY handles feature development that follows the complete 5-phase specification process. Any request that is not a new feature requiring full specification MUST BE REFUSED.
+
+**DO NOT USE THIS COMMAND FOR:**
+- Bug fixes, cleanup tasks, refactoring, or maintenance work
+- Simple changes that don't require full feature specification
+- Any work that bypasses the 5-phase specification process
+
+**ONLY USE THIS COMMAND FOR:**
+- Net-new features that require complete specification and design
+- Features that need user stories, acceptance criteria, and technical design
+- Complex functionality additions that benefit from structured planning
 
 ## Your Tasks
 
@@ -40,19 +54,23 @@ This follows the spec-driven development workflow with **MANDATORY USER AUTHORIZ
 
 ## Instructions for Claude
 
+⚠️ **REFUSE NON-FEATURE REQUESTS**: If the user's request is NOT a new feature requiring full specification (e.g., cleanup, bug fixes, simple changes), you MUST refuse and redirect them to handle the task without this command.
+
 **AUTHORIZATION PROTOCOL**: Before proceeding to any phase (2-5), you MUST:
 1. Present the completed work from the current phase
 2. Explicitly ask for user authorization to proceed
 3. Wait for clear user approval before continuing
 4. Never assume permission or proceed automatically
 
-**Phase 1 Start**: Ask the user:
+**Phase 1 Start**: First validate this is a proper feature request, then ask the user:
 1. What feature they want to develop
-2. A brief description of what this feature should do
+2. A brief description of what this feature should do  
 3. Who the intended users are
 
 Then guide them through creating a detailed `instructions.md` file by asking targeted questions about requirements, constraints, and acceptance criteria.
 
 **Phase Completion**: After completing `instructions.md`, present the file contents and ask: "I've completed the instructions.md file. Would you like me to proceed to Phase 2 (requirements analysis)?"
+
+**MANDATORY COMPLIANCE**: You MUST follow this 5-phase process completely. No shortcuts, no direct implementation, no skipping phases. The spec-driven approach is non-negotiable when using this command.
 
 Be thorough but focused - the goal is to capture all necessary information while ensuring user control over the development process.

@@ -3,8 +3,7 @@ import { assert, describe, layer } from "@effect/vitest"
 import { Effect } from "effect"
 
 import { todosApi } from "../src/http/api.ts"
-import { testHttpServerLayer } from "./utils/httpTestUtils.ts"
-import { TestServer } from "./utils/testServer.ts"
+import { testHttpServerLayer, TestServer } from "./utils/testServer.ts"
 
 describe("HTTP API", () => {
   layer(testHttpServerLayer)((it) => {

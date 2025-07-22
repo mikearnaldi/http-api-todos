@@ -91,10 +91,11 @@ export const createTestHttpServer = () => {
 ```
 
 **Factory Pattern Benefits:**
-- **Service Composition**: Combines server, logging, and HTTP client
+- **Service Composition**: Combines server, logging, and HTTP client layers
 - **URL Discovery**: Automatically extracts dynamic server URL from logs
 - **Mock Integration**: Captures server logs for testing
 - **Reusability**: Same setup for all HTTP integration tests
+- **Complete Dependencies**: FetchHttpClient.layer included, no additional provision needed
 
 ## Dynamic Port Assignment Pattern
 
@@ -137,10 +138,10 @@ const getServerUrl = () => {
 
 ## HTTP Client Testing Pattern
 
-### 1. Effect HttpClient Integration
+### 1. Low-Level HttpClient Integration
 
 ```typescript
-it.effect("should test HTTP endpoint", () =>
+it.effect("should test HTTP endpoint with raw client", () =>
   Effect.gen(function* () {
     const serverUrl = getServerUrl()
     
@@ -155,11 +156,33 @@ it.effect("should test HTTP endpoint", () =>
 )
 ```
 
-**Effect HttpClient Benefits:**
-- **Type Safety**: Fully typed request/response handling
-- **Effect Integration**: Natural composition with other Effects
-- **Error Handling**: Automatic Effect error propagation
-- **Service Integration**: Works with Effect service system
+### 2. HttpApiClient Integration (Recommended)
+
+```typescript
+import { HttpApiClient } from "@effect/platform"
+import { todosApi } from "../src/http/api.ts"
+
+it.effect("should test endpoint via derived client", () =>
+  Effect.gen(function* () {
+    const serverUrl = getServerUrl()
+    
+    // Use HttpApiClient.make() to derive type-safe client
+    const client = yield* HttpApiClient.make(todosApi, { baseUrl: serverUrl })
+    const result = yield* client.Health.status()
+    
+    // Type-safe response handling (no manual parsing)
+    assert.strictEqual(result, "Server is running successfully")
+  })
+)
+```
+
+**HttpApiClient Benefits:**
+- **Full Type Safety**: Client methods match API specification exactly
+- **Automatic Parsing**: Responses parsed according to endpoint schemas
+- **No Manual HTTP**: Abstract away HTTP details, focus on business logic
+- **Client-Server Consistency**: Guaranteed consistency with server API
+
+**Important**: FetchHttpClient.layer is already provided by testServerLayer, so no additional Effect.provide() is needed in tests.
 
 ### 2. HTTP Request Pattern Variations
 

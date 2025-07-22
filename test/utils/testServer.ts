@@ -1,16 +1,32 @@
-import { HttpApiBuilder, HttpServer } from "@effect/platform"
+import { FetchHttpClient, HttpApiBuilder, HttpServer } from "@effect/platform"
 import { NodeHttpServer } from "@effect/platform-node"
-import { Context, Effect, Layer } from "effect"
+import { Console, Context, Effect, Layer, Logger } from "effect"
 import { createServer } from "node:http"
+import * as portfinder from "portfinder"
 
 import { todosApi } from "http-api-todos/http/api.ts"
 import { healthLive } from "http-api-todos/http/handlers/health.ts"
 
-import { findAvailablePort } from "./portFinder.ts"
+import { createMockConsole } from "./mockConsole.ts"
 
-const apiLive = HttpApiBuilder.api(todosApi).pipe(
-  Layer.provide(healthLive)
-)
+/**
+ * Find an available port starting from the given port
+ *
+ * Uses Effect.promise with fail-fast behavior - any portfinder errors
+ * will crash the test execution as intended, since port unavailability
+ * indicates system-level issues that should be investigated.
+ *
+ * @param startPort - The port number to start searching from (default: 3000)
+ * @returns Effect that resolves to an available port number
+ *
+ * @example
+ * ```typescript
+ * const portEffect = findAvailablePort(3000)
+ * const port = yield* portEffect // Will be >= 3000
+ * ```
+ */
+const findAvailablePort = (startPort: number = 3000): Effect.Effect<number> =>
+  Effect.promise(() => portfinder.getPortPromise({ port: startPort }))
 
 /**
  * Test server service for accessing the dynamically assigned port and captured messages
@@ -77,24 +93,33 @@ export class TestServer extends Context.Tag("TestServer")<
 }
 
 /**
- * Test server layer with dynamic port assignment using portfinder
+ * Test HTTP server layer with mock console and message capture
  *
- * This replaces the previous fragile port 0 strategy with reliable
- * port finding using the portfinder package integrated through Effect.
- * The port and messages are made available through the TestServer service context.
+ * This layer provides:
+ * - HTTP server with dynamic port assignment
+ * - Mock console for capturing log messages
+ * - HTTP client integration for making requests
+ * - Unified TestServer service for accessing port and messages
  */
-export const testServerLive = Layer.unwrapEffect(
+export const testHttpServerLayer = Layer.unwrapEffect(
   Effect.gen(function*() {
+    const { messages, mockConsole } = createMockConsole()
     const port = yield* findAvailablePort()
+
+    const apiLive = HttpApiBuilder.api(todosApi).pipe(
+      Layer.provide(healthLive)
+    )
 
     const serverLayer = HttpApiBuilder.serve().pipe(
       Layer.provide(apiLive),
       HttpServer.withLogAddress,
-      Layer.provide(NodeHttpServer.layer(createServer, { port }))
+      Layer.provide(NodeHttpServer.layer(createServer, { port })),
+      Layer.provide(Logger.add(Logger.defaultLogger)),
+      Layer.provide(Console.setConsole(mockConsole)),
+      Layer.provideMerge(FetchHttpClient.layer)
     )
 
-    // Note: messages array will be populated by httpTestUtils layer
-    const testServerLayer = TestServer.layer(port, [])
+    const testServerLayer = TestServer.layer(port, messages)
 
     return Layer.provideMerge(serverLayer, testServerLayer)
   })

@@ -210,22 +210,124 @@ layer(testServerLayer)((it) => {
 - **Production**: Long-running process with BunRuntime
 - **Testing**: Scoped execution with automatic cleanup
 
+## Configuration-Driven Layer Patterns
+
+### 1. Layer.unwrapEffect() with Configuration
+
+```typescript
+import { Config, Effect, Layer } from "effect"
+
+// Configuration definition
+export const serverPortConfig = Config.port("PORT").pipe(
+  Config.withDefault(3000)
+)
+
+// Layer that depends on configuration
+export const serverLive = Layer.unwrapEffect(
+  Effect.gen(function* () {
+    const port = yield* serverPortConfig  // ← Resolve config first
+    return HttpApiBuilder.serve().pipe(
+      Layer.provide(apiLive),
+      HttpServer.withLogAddress,
+      Layer.provide(BunHttpServer.layer({ port }))  // ← Use resolved port
+    )
+  })
+)
+```
+
+**Layer.unwrapEffect() Pattern:**
+- **Configuration Resolution**: Resolves Effect-based configuration during layer creation
+- **Dynamic Layer Construction**: Creates layers based on runtime configuration
+- **Type Safety**: Full Effect type checking for configuration errors
+- **Fail-Fast**: Configuration errors surface during layer initialization
+
+### 2. Configuration Flow with unwrapEffect
+
+```
+Environment Variable → Config.port() → Layer.unwrapEffect → Server Layer
+     ↓                      ↓                ↓                   ↓
+   PORT=8080        Validation [1-65535]   Effect.gen        BunHttpServer
+                         ↓                      ↓
+                   Config.withDefault(3000)   port value
+```
+
+**Flow Characteristics:**
+1. **Environment Reading**: `Config.port("PORT")` reads and validates PORT
+2. **Default Application**: `Config.withDefault(3000)` provides fallback
+3. **Effect Resolution**: `Layer.unwrapEffect` resolves configuration Effect
+4. **Layer Construction**: Dynamic layer creation with resolved values
+
+### 3. Configuration Error Handling
+
+```typescript
+// Configuration errors propagate through Effect system
+const serverLive = Layer.unwrapEffect(
+  Effect.gen(function* () {
+    const port = yield* serverPortConfig  // ← Can fail with ConfigError
+    return HttpApiBuilder.serve().pipe(/* ... */)
+  })
+)
+
+// Error types from Config.port()
+type ConfigErrors = 
+  | ConfigError.InvalidData    // PORT=invalid
+  | ConfigError.InvalidData    // PORT=70000 (out of range)
+```
+
+**Error Handling Benefits:**
+- **Fail-Fast**: Invalid configuration prevents server startup
+- **Type-Safe Errors**: ConfigError types are known at compile time
+- **Clear Messages**: Effect's Config API provides descriptive error messages
+- **Effect Integration**: Errors flow naturally through Effect error system
+
+### 4. Advanced Configuration Patterns
+
+```typescript
+// Multiple configuration values
+const serverConfig = Effect.gen(function* () {
+  const port = yield* Config.port("PORT").pipe(Config.withDefault(3000))
+  const host = yield* Config.string("HOST").pipe(Config.withDefault("0.0.0.0"))
+  return { port, host }
+})
+
+// Configuration-dependent layer with multiple values
+export const serverLive = Layer.unwrapEffect(
+  Effect.gen(function* () {
+    const { port, host } = yield* serverConfig
+    return HttpApiBuilder.serve().pipe(
+      Layer.provide(apiLive),
+      HttpServer.withLogAddress,
+      Layer.provide(BunHttpServer.layer({ port, hostname: host }))
+    )
+  })
+)
+```
+
 ## Advanced Layer Patterns
 
 ### 1. Platform Abstraction Layer
 
 ```typescript
-// Production
-Layer.provide(BunHttpServer.layer({ port: 3000 }))
+// Production (configurable port)
+export const serverLive = Layer.unwrapEffect(
+  Effect.gen(function* () {
+    const port = yield* serverPortConfig
+    return HttpApiBuilder.serve().pipe(
+      Layer.provide(apiLive),
+      HttpServer.withLogAddress,
+      Layer.provide(BunHttpServer.layer({ port }))  // ← Dynamic port
+    )
+  })
+)
 
-// Testing  
+// Testing (fixed behavior)
 Layer.provide(NodeHttpServer.layer(createServer, { port: 0 }))
 ```
 
 **Abstraction Benefits:**
 - **Same Interface**: Both provide HTTP server capability
-- **Different Implementations**: Optimized for different environments
-- **Easy Switching**: Change one line to switch platforms
+- **Different Implementations**: Production configurable, testing fixed
+- **Environment Separation**: Clear distinction between runtime environments
 
 ### 2. Service Replacement Pattern
 
@@ -281,5 +383,46 @@ test/utils/
 - **Composability**: Layers can be combined in different ways
 - **Testability**: Easy to substitute test implementations
 - **Resource Safety**: Automatic cleanup and error handling
+- **Configuration-Driven**: Use Layer.unwrapEffect for runtime configuration
+- **Fail-Fast Configuration**: Invalid configuration prevents layer initialization
 
-This layer-based approach provides powerful dependency injection, clear separation of concerns, and excellent testability while maintaining type safety throughout the application.
+### 5. Layer.unwrapEffect Best Practices
+
+```typescript
+// ✅ Good: Simple configuration resolution
+export const serverLive = Layer.unwrapEffect(
+  Effect.gen(function* () {
+    const port = yield* serverPortConfig
+    return HttpApiBuilder.serve().pipe(/* ... */)
+  })
+)
+
+// ✅ Good: Multiple configuration values
+export const serverLive = Layer.unwrapEffect(
+  Effect.gen(function* () {
+    const config = yield* Effect.all({
+      port: serverPortConfig,
+      host: serverHostConfig
+    })
+    return HttpApiBuilder.serve().pipe(/* ... */)
+  })
+)
+
+// ❌ Avoid: Complex logic in unwrapEffect
+export const serverLive = Layer.unwrapEffect(
+  Effect.gen(function* () {
+    const port = yield* serverPortConfig
+    // Avoid heavy computation or complex business logic here
+    const processedData = yield* heavyProcessing(port)
+    return HttpApiBuilder.serve().pipe(/* ... */)
+  })
+)
+```
+
+**unwrapEffect Guidelines:**
+- **Configuration Only**: Use for resolving configuration values
+- **Keep Simple**: Avoid complex business logic in unwrapEffect
+- **Error Handling**: Let configuration errors bubble up naturally
+- **Type Safety**: Trust Effect's configuration validation
+
+This layer-based approach provides powerful dependency injection, clear separation of concerns, excellent testability, and flexible configuration management while maintaining type safety throughout the application.

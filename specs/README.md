@@ -23,3 +23,4 @@ Each feature has its own directory containing:
 - [x] **[github-actions-ci](./github-actions-ci/)** - Continuous Integration pipeline with lint, typecheck, and test automation
 - [x] **[httpapi-client-derivation](./httpapi-client-derivation/)** - Derive type-safe HTTP clients from HttpApi specifications for testing and reuse
 - [x] **[configurable-server-port](./configurable-server-port/)** - Make HTTP server port configurable via environment variables using Effect's Config API
+- [x] **[portfinder-testing](./portfinder-testing/)** - Replace fragile port 0 testing with portfinder package for reliable test server port assignment
